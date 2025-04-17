@@ -1,9 +1,6 @@
-use contracts::YourContract::{
-    IYourContractDispatcher, IYourContractDispatcherTrait, YourContract::STRK_CONTRACT_ADDRESS,
-};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use contracts::Counter::{ICounterDispatcher, ICounterDispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{CheatSpan, ContractClassTrait, DeclareResultTrait, cheat_caller_address, declare};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
 use starknet::{ContractAddress};
 
 // Real contract address deployed on Sepolia
@@ -11,50 +8,48 @@ const OWNER: felt252 = 0x02dA5254690b46B9C4059C25366D1778839BE63C142d899F0306fd5
 
 fn deploy_contract(name: ByteArray) -> ContractAddress {
     let contract_class = declare(name).unwrap().contract_class();
+    let init_value: u32 = 10;
     let mut calldata = array![];
+    calldata.append_serde(init_value);
     calldata.append_serde(OWNER);
     let (contract_address, _) = contract_class.deploy(@calldata).unwrap();
     contract_address
 }
-
 #[test]
-fn test_set_greetings() {
-    let contract_address = deploy_contract("YourContract");
+fn contract() {
+    let contract_address = deploy_contract("Counter");
 
-    let dispatcher = IYourContractDispatcher { contract_address };
+    let dispatcher = ICounterDispatcher { contract_address };
 
-    let current_greeting = dispatcher.greeting();
-    let expected_greeting: ByteArray = "Building Unstoppable Apps!!!";
-    assert(current_greeting == expected_greeting, 'Should have the right message');
+    let init_value = dispatcher.get_counter();
 
-    let new_greeting: ByteArray = "Learn Scaffold-Stark 2! :)";
-    dispatcher.set_greeting(new_greeting.clone(), Option::None); // we dont transfer any eth
-    assert(dispatcher.greeting() == new_greeting, 'Should allow set new message');
+    let expected_value: u32 = 10;
+
+    assert(init_value == expected_value, 'Should have the right value');
+    dispatcher.increase_counter();
+
+    let new_value = dispatcher.get_counter();
+
+    let expected_value: u32 = 11;
+
+    assert(new_value == expected_value, 'Should have the right value');
+
+    dispatcher.decrease_counter();
+    dispatcher.decrease_counter();
+    dispatcher.decrease_counter();
+
+    let new_value = dispatcher.get_counter();
+
+    let expected_value: u32 = 8;
+
+    assert(new_value == expected_value, 'Should have the right value');
+
+    dispatcher.reset_counter();
+
+    let new_value = dispatcher.get_counter();
+
+    let expected_value: u32 = 0;    
+    
+    assert(new_value == expected_value, 'Should have the right value');
 }
 
-#[test]
-#[fork("SEPOLIA_LATEST")]
-fn test_transfer() {
-    let user: ContractAddress = OWNER.try_into().unwrap();
-    let strk_contract_address = STRK_CONTRACT_ADDRESS.try_into().unwrap();
-    let your_contract_address = deploy_contract("YourContract");
-
-    let your_contract_dispatcher = IYourContractDispatcher {
-        contract_address: your_contract_address,
-    };
-    let erc20_dispatcher = IERC20Dispatcher { contract_address: strk_contract_address };
-    let amount_to_transfer = 500;
-    cheat_caller_address(strk_contract_address, user, CheatSpan::TargetCalls(1));
-    erc20_dispatcher.approve(your_contract_address, amount_to_transfer);
-    let approved_amount = erc20_dispatcher.allowance(user, your_contract_address);
-    assert(approved_amount == amount_to_transfer, 'Not the right amount approved');
-
-    let new_greeting: ByteArray = "Learn Scaffold-Stark 2! :)";
-
-    cheat_caller_address(your_contract_address, user, CheatSpan::TargetCalls(1));
-    your_contract_dispatcher
-        .set_greeting(
-            new_greeting.clone(), Option::Some(amount_to_transfer),
-        ); // we transfer 500 wei
-    assert(your_contract_dispatcher.greeting() == new_greeting, 'Should allow set new message');
-}
