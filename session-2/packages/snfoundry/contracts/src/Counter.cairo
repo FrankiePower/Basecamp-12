@@ -8,8 +8,10 @@ pub trait ICounter<TContractState> {
 
 #[starknet::contract]
 mod Counter {
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use openzeppelin_access::ownable::OwnableComponent;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress};
+    use starknet::{get_caller_address};
     use super::{ICounter};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -25,37 +27,32 @@ mod Counter {
         ownable: OwnableComponent::Storage,
     }
 
-    // #[event]
-    // #[derive(Drop, starknet::Event)]
-    // pub enum Event {
-    //     #[flat]
-    //     Increased: Increased,
-    //     Decreased: Decreased,
-    //     OwnableEvent: OwnableComponent::Event,
-    // }
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        Increased: Increased,
+        Decreased: Decreased,
+        OwnableEvent: OwnableComponent::Event,
+    }
 
-    // #[derive(Drop, starknet::Event)]
-    // pub struct Increased {
-    //     #[key]
-    //     account: ContractAddress,
-    //     #[key]
-    //     value: u32,
-    // }
+    #[derive(Drop, starknet::Event)]
+    pub struct Increased {
+        #[key]
+        account: ContractAddress,
+        #[key]
+        value: u32,
+    }
 
-    // #[derive(Drop, starknet::Event)]
-    // pub struct Decreased {
-    //     #[key]
-    //     account: ContractAddress,
-    //     #[key]
-    //     value: u32,
-    // }
-
-    pub mod Error {
-        const EMPTY_COUNTER: felt252 = 'Decreasing Empty Counter';
+    #[derive(Drop, starknet::Event)]
+    pub struct Decreased {
+        #[key]
+        account: ContractAddress,
+        #[key]
+        value: u32,
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, init_value: u32) {
+    fn constructor(ref self: ContractState, init_value: u32, owner: ContractAddress) {
         self.counter.write(init_value);
         self.ownable.initializer(owner);
     }
@@ -70,12 +67,12 @@ mod Counter {
             let new_value = self.counter.read() + 1;
             self.counter.write(new_value);
             // event
-        // self.emit(Increased { account: get_caller_address(), value: new_value });
+            self.emit(Increased { account: get_caller_address(), value: new_value });
         }
 
         fn decrease_counter(ref self: ContractState) {
             let old_value = self.counter.read();
-            assert(old_value > 0, Error::EMPTY_COUNTER);
+            assert(old_value > 0, 'Counter cannot be negative');
         }
 
         fn reset_counter(ref self: ContractState) {
@@ -84,4 +81,3 @@ mod Counter {
         }
     }
 }
-
