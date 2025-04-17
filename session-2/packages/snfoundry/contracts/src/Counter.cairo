@@ -73,6 +73,10 @@ mod Counter {
         fn decrease_counter(ref self: ContractState) {
             let old_value = self.counter.read();
             assert(old_value > 0, 'Counter cannot be negative');
+            let new_value = old_value - 1;
+            self.counter.write(new_value);
+            // event
+            self.emit(Decreased { account: get_caller_address(), value: new_value });
         }
 
         fn reset_counter(ref self: ContractState) {
