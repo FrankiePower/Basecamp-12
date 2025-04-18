@@ -7,7 +7,7 @@ pub trait ICounter<TContractState> {
 }
 
 #[starknet::contract]
-mod Counter {
+pub mod Counter {
     use openzeppelin_access::ownable::OwnableComponent;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress};
@@ -37,18 +37,12 @@ mod Counter {
 
     #[derive(Drop, starknet::Event)]
     pub struct Increased {
-        #[key]
-        account: ContractAddress,
-        #[key]
-        value: u32,
+        pub account: ContractAddress,
     }
 
     #[derive(Drop, starknet::Event)]
     pub struct Decreased {
-        #[key]
-        account: ContractAddress,
-        #[key]
-        value: u32,
+        pub account: ContractAddress,
     }
 
     #[constructor]
@@ -67,7 +61,7 @@ mod Counter {
             let new_value = self.counter.read() + 1;
             self.counter.write(new_value);
             // event
-            self.emit(Increased { account: get_caller_address(), value: new_value });
+            self.emit(Increased { account: get_caller_address() });
         }
 
         fn decrease_counter(ref self: ContractState) {
@@ -76,11 +70,12 @@ mod Counter {
             let new_value = old_value - 1;
             self.counter.write(new_value);
             // event
-            self.emit(Decreased { account: get_caller_address(), value: new_value });
+            self.emit(Decreased { account: get_caller_address() });
         }
 
         fn reset_counter(ref self: ContractState) {
             // only owner can reset
+            self.ownable.assert_only_owner();
             self.counter.write(0);
         }
     }
