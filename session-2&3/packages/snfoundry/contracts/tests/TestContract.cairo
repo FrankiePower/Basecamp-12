@@ -48,8 +48,8 @@ fn contract() {
 
     let new_value = dispatcher.get_counter();
 
-    let expected_value: u32 = 0;    
-    
+    let expected_value: u32 = 0;
+
     assert(new_value == expected_value, 'Should have the right value');
 }
 
