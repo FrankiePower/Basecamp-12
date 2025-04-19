@@ -123,16 +123,15 @@ fn test_safe_panic_decrease_counter() {
     }
 }
 
-// // This test is commented out because it is not working as expected
-// #[test]
-// #[should_panic(expected: "Counter cannot be negative")]
-// fn test_panic_decrease_counter() {
-//     let (counter, _, _) = _deploy_(ZERO_COUNT);
+#[should_panic(expected: 'Counter cannot be negative')]
+#[test]
+fn test_panic_decrease_counter() {
+    let (counter, _, _) = _deploy_(ZERO_COUNT);
 
-//     assert(counter.get_counter() == ZERO_COUNT, 'count not set');
+    assert(counter.get_counter() == ZERO_COUNT, 'count not set');
 
-//     counter.decrease_counter();
-// }
+    counter.decrease_counter();
+}
 
 #[test]
 fn test_successful_decrease_counter() {
