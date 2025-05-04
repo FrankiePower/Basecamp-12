@@ -3,6 +3,14 @@ use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
 use starknet::{ContractAddress};
 
+//
+//
+
+// I wrote this test by myself to test the Counter contract.
+
+//
+//
+
 // Real contract address deployed on Sepolia
 const OWNER: felt252 = 0x02dA5254690b46B9C4059C25366D1778839BE63C142d899F0306fd5c312A5918;
 

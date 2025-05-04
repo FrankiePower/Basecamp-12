@@ -10,6 +10,14 @@ use snforge_std::{
 };
 use starknet::{ContractAddress};
 
+//
+//
+
+// I wrote this test during the session with David.
+
+//
+//
+
 const ZERO_COUNT: u32 = 0;
 
 fn OWNER() -> ContractAddress {
