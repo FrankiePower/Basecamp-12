@@ -1,3 +1,4 @@
+// import libraries
 use contracts::counter::Counter::FELT_STRK_CONTRACT;
 use contracts::counter::{
     Counter, ICounterDispatcher, ICounterDispatcherTrait, ICounterSafeDispatcher,
@@ -426,3 +427,4 @@ fn test_reset_counter_contract_receives_no_strk_token_when_strk_balance_is_zero(
     assert(user1_strk_balance_2 == STRK_AMOUNT, 'strk not deducted')
     
 }
+

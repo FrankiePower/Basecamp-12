@@ -31,7 +31,7 @@ export const isCairoContractAddress = (
   type.includes("core::starknet::contract_address::ContractAddress");
 
 export const isCairoEthAddress = (type: string): type is CairoEthAddress =>
-  type.includes("core::starknet::eth_address::EthAddress"); // Kept for backward compatibility
+  type.includes("core::starknet::eth_address::EthAddress");
 
 export const isCairoClassHash = (type: string): type is CairoClassHash =>
   type.includes("core::starknet::class_hash::ClassHash");
@@ -62,9 +62,6 @@ export const isCairoFelt = (type: string): type is CairoFelt =>
 export const isCairoTuple = (type: string): type is CairoTuple =>
   /\(([^)]+)\)/i.test(type);
 
-export const isCairoSpan = (type: string): boolean =>
-  type.includes("core::array::Span");
-
 export const isCairoType = (type: string): boolean => {
   return (
     isCairoInt(type) ||
@@ -80,8 +77,7 @@ export const isCairoType = (type: string): boolean => {
     isCairoByteArray(type) ||
     isCairoSecp256k1Point(type) ||
     isCairoFelt(type) ||
-    isCairoTuple(type) ||
-    isCairoSpan(type)
+    isCairoTuple(type)
   );
 };
 

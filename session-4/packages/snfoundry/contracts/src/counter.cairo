@@ -1,3 +1,4 @@
+
 #[starknet::interface]
 pub trait ICounter<TContractState> {
     fn get_counter(self: @TContractState) -> u32;
